@@ -4,47 +4,43 @@
 # AnalyseR
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of AnalyseR is to …
+L’objectif de l’application est de pouvoir comparer différents packages
+de visualisations graphiques tels que `ggplot2` et `plotly`.
 
 ## Installation
 
-You can install the development version of AnalyseR like so:
+Vous pouvez installer ce package de la façon suivante:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools::install_github("yanismicha/AnalyseR")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
-
 ``` r
 library(AnalyseR)
-## basic example code
-```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
-
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+#> Warning: remplacement de l'importation précédente 'ggplot2::last_plot' par
+#> 'plotly::last_plot' lors du chargement de 'AnalyseR'
+#> Warning: remplacement de l'importation précédente 'magrittr::set_names' par
+#> 'rlang::set_names' lors du chargement de 'AnalyseR'
+#> Warning: remplacement de l'importation précédente 'shinyWidgets::alert' par
+#> 'shinyjs::alert' lors du chargement de 'AnalyseR'
+#> Warning: remplacement de l'importation précédente 'shiny::runExample' par
+#> 'shinyjs::runExample' lors du chargement de 'AnalyseR'
+library(compar)
+#> Warning: remplacement de l'importation précédente 'ggplot2::last_plot' par
+#> 'plotly::last_plot' lors du chargement de 'compar'
+#> Warning: remplacement de l'importation précédente 'magrittr::set_names' par
+#> 'rlang::set_names' lors du chargement de 'compar'
 ```
 
 You’ll still need to render `README.Rmd` regularly, to keep `README.md`
 up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
 
 In that case, don’t forget to commit and push the resulting figure
 files, so they display on GitHub and CRAN.
