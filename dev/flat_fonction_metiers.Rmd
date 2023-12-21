@@ -1,0 +1,820 @@
+---
+title: "flat_fonction_metiers.Rmd empty"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r development, include=FALSE}
+library(testthat)
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+library(forcats)
+library(rlang)
+library(ggmosaic)
+```
+
+
+# fonction_metiers
+
+```{r development-load}
+# Load already included functions if relevant
+pkgload::load_all(export_all = FALSE)
+```
+
+# Scinde
+
+```{r function-scinde}
+#' scinde une data
+#' fonction permettant de recuperer une subdata avec seulement le type de variables specifie
+#'
+#' @param data un dataframe
+#' @param type une chaine de caractere specifiant la partie retourne.
+#' Si null,renvoie une liste avec les noms des variables pour chaque type.
+#'
+#' @return un sous dataframe si type spécifié, une liste des noms de variable sinon
+#' @export
+#'
+scinde <- function(data,type=NULL) {
+  names_data_quanti <- c()
+  names_data_quali <- c()
+  names_data_binaire <- c()
+  names_data<-names(data)
+  for(i in 1:length(names_data)){
+    var <- names_data[i]
+    if(is.numeric(data[,var])){
+      names_data_quanti <- append(names_data_quanti,var)
+    }
+    else {
+      names_data_quali <- append(names_data_quali,var)
+      if(length(levels(as.factor(data[,var])))== 2){
+        names_data_binaire <- append(names_data_binaire,var)
+      }
+    }
+  }
+  res <- list(quanti = names_data_quanti,quali = names_data_quali,binaire = names_data_binaire)
+  if(is.null(type))
+    return(res)
+  else if(type == "quanti")
+    data[,res$quanti]
+  else if (type == "quali")
+    data[,res$quali]
+  else if (type == "binaire")
+    data[,res$binaire]
+  else
+    print('le type doit etre:"quanti","quali" ou "binaire')
+}
+
+```
+
+```{r examples-fonction_scinde}
+scinde(data)
+head(scinde(data,"quanti"),5)
+head(scinde(data,"binaire"),5)
+```
+
+```{r tests-fonction_scinde}
+names <- scinde(data)
+quanti <- scinde(data,"quanti")
+quali <- scinde(data,"quali")
+binaire <- scinde(data,"binaire")
+
+test_that("scinde works", {
+  expect_equal(object = typeof(names),
+               expected = "list")
+  for(i in 1:ncol(quanti))
+    expect_equal(object = is.numeric(scinde(data,"quanti")[,i]),
+               expected = TRUE)
+  for(i in 1:ncol(quali))
+  expect_equal(object = is.character(scinde(data,"quali")[,i]),
+               expected = TRUE)
+  for(i in 1:ncol(binaire))
+    expect_equal(object = length(levels(as.factor(scinde(data,"binaire")[,i]))),
+               expected = 2)
+  
+  
+
+})
+```
+
+# barTriees
+```{r function-barsTriees}
+#' barsTriees
+#' une fonction retournant  un barplot triee ggplot.
+#' @param data un dataframe
+#' @param var une variable qualitative
+#' @import ggplot2
+#' @import magrittr
+#' @import dplyr
+#' @import forcats
+#' @return un barplot ggplot triee
+#' @export
+
+barsTriees <- function(data, var) {
+  data |>
+    mutate({{ var }} := fct_rev(fct_infreq({{ var }})))  |>
+    ggplot(aes(x = {{ var }},fill= {{var}})) +
+    geom_bar() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+}
+```
+
+```{r examples-function_barsTriees}
+barsTriees(data,peak_name)
+```
+
+```{r tests-fonction_barsTriees}
+## a faire ##
+```
+
+
+# diagbatons
+```{r function-diagbatons}
+#' diagbatons
+#' Permet de comparer un barplot classique a un ggplot/plotly.
+#'
+#' @param data un dataframe.
+#' @param modalite une variable qualitative.
+#' @param variable une variable quelconque.
+#' @param tri si TRUE, trie les barres.
+#' @param color la couleur.
+#' @param type le type de graphique: ('classique','ggplot' ou 'plotly').
+#' @import ggplot2
+#' @import plotly
+#' @return un barplot
+#' @export
+#'
+
+diagbatons<- function(data,modalite,tri=FALSE,color="grey",type="classique",variable=NULL){
+  if(!is.data.frame(data)){
+    stop("data doit etre un dataframe")
+  }
+  else if(is.numeric(data[,modalite])){
+    stop("la variable modalite doit etre de type qualitatif")
+  }
+  else if(tri!= TRUE && tri != FALSE){
+    stop("tri doit etre egal a TRUE/FALSE")
+  }
+  else if(type!= "classique" && type != "ggplot" && type!= "plotly"){
+    stop("type doit etre egal a 'classique'/'ggplot'/'plotly")
+  }
+  else{
+    y <- data[,modalite]
+    if(is.null(variable)){
+      if(type == "classique"){
+        if(!tri){
+          barplot(table(y), col = color, las = 2)
+        }
+        else {
+          barplot(sort(table(y)), col = color, las = 2)
+        }
+      }
+      else if(type == "ggplot"){
+        if(!tri){
+          ggplot(data, aes(x = y, fill = y)) +
+            geom_bar() +
+            theme(axis.text.x = element_text(angle = 90, hjust = 1))
+        }
+        else {
+          data |> barsTriees(y)
+        }
+      }
+      else if(type == "plotly"){
+        if(!tri){
+          plot <- plot_ly(data, x = ~y, type = "histogram",color=~y)
+          layout(plot,xaxis = list(title = modalite))
+        }
+        else{
+          category_counts <- table(y)
+          sorted_categories <- names(sort(category_counts))
+          sort_mod <- factor(y, levels = sorted_categories)
+          plot <- plot_ly(x=sort_mod, type = "histogram", color = sort_mod)
+          layout(plot,xaxis = list(title = modalite))
+        }
+      }
+    }
+    else{#une quanti en fct d'une quali
+      x <- data[,variable]
+      if(type=="classique"){
+        cont <- table(y,x)
+        barplot(cont,beside = FALSE, col = color,legend.text = TRUE, main = paste("Distribution de ",variable," par ",modalite),
+                xlab = " ",ylab = "Frequence",las = 2)
+      }
+      else if(type == "ggplot"){##ggplot
+        ggplot(data, aes(x = x, fill = y)) +
+        geom_bar() +
+        labs(
+            x = variable,
+            y = modalite,
+            fill = modalite
+        ) +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      }
+      else if(type == "plotly"){
+        plot <- plot_ly(x = ~x, type = "histogram",color=~y)
+        plot %>% layout(barmode= "stack",xaxis=list(title=variable))
+      }
+
+    }
+  }
+}
+
+```
+
+```{r examples-fonction_diagbatons}
+diagbatons(data=data,modalite = "peak_name",tri = TRUE,type = "ggplot")
+```
+
+```{r tests-fonction_diagbatons}
+## a faire ## 
+```
+
+# boitemoustache
+
+```{r function-boitemoustache}
+#' Boxplot
+#' Permet de comparer des boxplot classique a ceux de ggplot/plotly
+#'
+#' @param data un dataframe.
+#' @param variable une variable quanti du data.
+#' @param nbClasses le nombre de classes pour cut la variable quanti (si =1 , pas de classes).
+#' @param type le type du graphique (ggplot,classique,ou plotly).
+#' @param color la couleur des boxplot.
+#' @param varwidth TRUE pour ajuster la taille des box selon la quantite de donnees.
+#' @param modalite variable qualitative a discriminer.
+#' @import forcats
+#' @import ggplot2
+#' @import plotly
+#' @return un boxplot 
+#' @export
+#'
+boitemoustache <- function(data,variable,nbClasses=1,varwidth = FALSE,type = "classique",color="grey",modalite=NULL){
+  if(!is.data.frame(data)){
+    stop("data doit etre un dataframe")
+  }
+  #else if(!is.numeric(data[,variable])){
+   # stop("variable doit etre de type quantitatif")
+  #}
+  else if(nbClasses <1){
+    stop("le nombre de classes ne peut pas etre inferieur a 1")
+  }
+  else if(varwidth!= TRUE && varwidth != FALSE){
+    stop("varwidth doit etre egal a TRUE/FALSE")
+  }
+  else if(type != "classique" && type!= "ggplot" && type != "plotly"){
+    stop("type doit etre egal a 'classique','ggplot' ou 'plotly'")
+  }
+  else{
+    x1 <- data[,variable]
+    if(!is.null(modalite)){
+      y <- data[,modalite]
+      if(type == "classique"){
+        means <- tapply(x1,y,mean)
+        boxplot(x1~y,col = color,main = paste("boxplot de la variable ",variable," en fonction de ",modalite), ylab = variable,xlab = "",las = 2)
+        points(x = 1:length(means), y = means, pch = 19, col = "black") #ajout de la moyenne
+      }
+      else if (type == "ggplot"){
+        ggplot(data, aes(x = fct_reorder(y,x1, median),y=x1, color = y)) +
+          geom_boxplot() +
+          stat_summary(
+            fun = "mean",
+            geom = "point",
+            shape = 18,
+            size = 1
+          ) +
+          labs( #la legende
+            x = modalite,
+            y = variable,
+            color = modalite
+          ) +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      }
+      else if (type == "plotly"){
+        plot <- plot_ly(data, y = ~x1, type = "box",color = ~y)
+        layout(plot, yaxis = list(title = variable))
+      }
+    }
+    else{
+      if(type == "classique"){
+        if(nbClasses>1){
+          bins <- seq(min(x1), max(x1), length.out = nbClasses + 1)
+          labels <- paste0("(", round(bins[-length(bins)], 0), ",", round(bins[-1], 0), "]")
+          varcut <- cut(x1, breaks = nbClasses,labels = labels)
+          boxplot(x1 ~ varcut, varwidth = varwidth, ylab = variable,xlab = "",main="",las=2,col=color)
+        }
+        else {
+          boxplot(x1,xlab = variable,main = "",col=color)
+        }
+      }
+      else if(type == "ggplot"){
+        ggplot(data, aes(y = x1)) +
+        geom_boxplot(aes(group = cut_interval(x1, nbClasses)),varwidth = varwidth,color=color) +
+        labs(
+          y = variable
+        )
+      }
+      else if (type == "plotly"){
+        if(nbClasses>1){
+          x1cut <- cut(x1,nbClasses)
+          plot <- plot_ly(y = ~x1, type = "box", x = x1cut, width = 0.6,boxpoints="outliers",line = list(colors = color))
+          layout(plot,xaxis = list(title = x1cut),yaxis = list(title = variable))
+        }
+        else{
+          plot <- plot_ly(y = ~x1, type = "box",line = list(color = color))
+          layout(plot,xaxis = list(title = ""),yaxis = list(title = variable))
+        }
+      }
+    }
+  }
+}
+
+```
+
+```{r examples-function_boitemoustache}
+boitemoustache(data = iris,variable = "Sepal.Length", modalite = "Species",type = "ggplot")
+```
+
+```{r tests-function_boitemoustache}
+## a faire ## 
+```
+
+# densite
+```{r function-densite}
+#' Density
+#' Densite d'une variable quantitative selon le type de plot specifie
+#'
+#' @param data un dataframe
+#' @param variable la variable
+#' @param color la couleur du graphique
+#' @param modalite variable a discriminer (Null par defaut)
+#' @param type le type de graphique souhaite (classique,ggplot)
+#' @import ggplot2
+#' @import ggridges
+#' @import plotly
+#' @return une densité 
+#' @export
+
+densite <- function(data,variable,modalite=NULL,type="classique",color="black"){
+  x1 <- data[,variable]
+  if(type == "classique"){
+    if(is.null(modalite))
+      plot(density(x1),main = paste("densite de la variable ",variable),col=color)
+    else{
+      moda <- levels(as.factor(data[,modalite]))
+      nb <- length(moda)
+      colors <- 1:(nb + 1)
+      for(i in 1:nb){
+        mod<- moda[i]
+        datasub <- data[data[,modalite]== mod,]
+        x1 <- datasub[,variable]
+        if(i == 1)
+          plot(density(x1),main=paste("Densite de ",variable," en fonction de ",modalite),col=colors[i])
+        else
+          lines(density(x1),col=colors[i])
+      }
+      legend("topright",legend=moda,col=colors,lty=1,cex=0.6)
+
+    }
+
+  }
+  else if(type == "ggplot"){
+    if(is.null(modalite))
+      ggplot(data,aes(x = x1)) + geom_density(color = color) +
+      labs(
+        x = variable
+      )
+    else{
+      y <- data[,modalite]
+      ggplot(data, aes(x = x1, y = y, fill = y, color = y)) +
+      geom_density_ridges(alpha = 0.5, show.legend = TRUE) +
+      labs(
+        x = variable,
+        y = NULL,
+        color = modalite,
+        fill = modalite
+      )
+    }
+  }
+  else if (type == "plotly"){
+    if(is.null(modalite)){
+      densite <- density(x1)
+      p <- plot_ly(x = densite$x, y = densite$y, type = "scatter", mode = "lines", line = list(shape = "linear",color=color))
+    }
+
+    else{
+      p <- plot_ly(data, x = ~x1, type = "histogram", histnorm = "probability", color = data[,modalite])
+    }
+    layout(p,xaxis = list(title = variable))
+
+  }
+}
+
+```
+
+```{r examples-function_densite}
+densite(data = iris,variable = "Sepal.Length",type = "ggplot")
+```
+
+```{r tests-function_densite}
+## a faire ## 
+```
+
+# histogramme
+```{r function-histogramme}
+#' histogramme
+#' Histogramme d'une variable quantitative selon le type de plot specifie
+#'
+#' @param data un dataframe
+#' @param variable la variable
+#' @param nbClasses le nombre de classes souhaite pour decouper la variable
+#' @param color la couleur du graphique
+#' @param type le type de graphique souhaite ('classique','ggplot','plotly')
+#' @import ggplot2
+#' @import plotly
+#' @return un histogramme
+#' @export
+
+
+histogramme <- function(data,variable,nbClasses=8,color="grey",type="classique"){
+  if(!is.data.frame(data)){
+    stop("data doit etre un dataframe")
+  }
+  else if(!is.numeric(data[,variable])){
+    stop("variable doit etre de type quantitatif")
+  }
+  else if(nbClasses <1){
+    stop("le nombre de classes ne peut pas etre inferieur a 1")
+  }
+  else if(type != "classique" && type!= "ggplot" && type != "plotly"){
+    stop("type doit etre egal a 'classique' ou 'ggplot'")
+  }
+  else{
+    x1 <- data[,variable]
+    bins <- seq(min(x1), max(x1), length.out = nbClasses + 1)
+    labels <- paste0("(", round(bins[-length(bins)], 0), ",", round(bins[-1], 0), "]")
+    if(type == "classique"){
+      hist(x1,breaks = bins,main="histogramme",col=color, xlab = variable)
+    }
+    else if(type == "ggplot"){
+      ggplot(data, aes(x = cut(x1, breaks = nbClasses,labels=labels))) +
+        geom_bar(color = color)+
+        labs( #la legende
+          x = variable
+        ) +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    }
+    else if (type == "plotly"){
+      p <- plot_ly(data, x = ~x1, type = "histogram", xbins = list(size = (max(x1) - min(x1)) / nbClasses),marker=list(color = color))
+      layout(p, xaxis = list(title = variable))
+
+    }
+  }
+}
+
+```
+
+```{r examples-function_histogramme}
+histogramme(data = iris,variable = "Sepal.Length",nbClasses = 8,color = "red",type = "classique")
+histogramme(data = iris,variable = "Sepal.Width",nbClasses = 12,color = "blue",type = "ggplot")
+```
+
+```{r tests-function_histogramme}
+## a faire ## 
+```
+
+# mosaique
+
+```{r function-mosaique}
+#' Mosaicplot
+#' Permet de comparer un mosaicplot classique a un ggplot/plotly.
+#'
+#' @param data un dataframe
+#' @param var1 une variable qualitative
+#' @param var2 une 2eme variable qualitative
+#' @param color la couleur du graphique
+#' @param type le type de graphique: ('classique','ggplot' ou 'plotly').
+#' @import rlang
+#' @import ggmosaic
+#' @return un mosaicplot
+#' @export
+
+mosaique <- function(data,var1,var2,color="grey",type="classique"){
+  if(!is.data.frame(data)){
+    stop("data doit etre un dataframe")
+  }
+  else if(is.numeric(data[,var1])){
+    stop("la variable var1 doit etre de type qualitatif")
+  }
+  else if(is.numeric(data[,var2])){
+    stop("la variable var2 doit etre de type qualitatif")
+  }
+  else if(type!= "classique" && type != "ggplot" && type!= "plotly"){
+    stop("type doit etre egal a 'classique'/'ggplot'/'plotly")
+  }
+  else if(type == "classique")
+    mosaicplot(table(data[, var1], data[, var2]),col = color, xlab = var1,ylab = var2,main = paste("Mosaicplot de ",var1,"en fonction de ",var2),las = 2)
+  else if (type == "ggplot"){
+    ggplot(data = data) +
+    geom_mosaic(aes(x = product(!!rlang::sym(var1),!!rlang::sym(var2)), fill = !!rlang::sym(var1)))
+  }
+}
+
+```
+
+```{r examples-function_mosaique}
+mosaique(iris,var1 = "Species",var2 = "Species",type = "ggplot")
+```
+
+```{r tests-function_mosaique}
+## a faire ## 
+```
+
+
+
+# scatterplot
+```{r function-scatterplot}
+#' Scatterplot
+#' Permet de comparer un scatterplot classique a un de ggplot
+#'
+#' @param data un dataframe.
+#' @param variable1 une variable quanti.
+#' @param variable2 une variable quanti.
+#' @param type le type du graphique (ggplot,classique ou plotly).
+#' @param color la couleur des individus.
+#' @param pch le caractère du point.
+#' @param reg la courbe de regression lisse.
+#' @param modalite la variable a dicriminer.
+#'
+#' @import ggplot2
+#' @import plotly
+#' @return un scatterplot
+#' @export
+
+scatterplot <- function(data, variable1,variable2,type="classique",color="black",pch=19,modalite=NULL,reg=FALSE){
+  if(!is.data.frame(data)){
+    stop("data doit etre un dataframe")
+  }
+  else if(!is.numeric(data[,variable1]) || !is.numeric(data[,variable2])){
+    stop("les variables doivent etre de type quantitatif")
+  }
+  else if(!is.numeric(pch) || round(pch,0)!= pch || pch>20 || pch <0){
+    stop("pch doit etre un entier entre 0 et 20")
+  }
+  else if(reg!=FALSE && reg!=TRUE){
+    stop("reg doit etre egal a TRUE/FALSE")
+  }
+
+  else if(type != "classique" && type!= "ggplot" && type!= "plotly"){
+    stop("type doit etre egal a 'classique' ou 'ggplot'")
+  }
+  else if(!is.null(modalite) && !is.character(modalite)){
+    stop("modalite doit etre une variable qualitative")
+  }
+  else {
+    x1 <- data[,variable1]
+    x2 <- data[,variable2]
+    if (is.null(modalite)){#toute la population
+      if(type == "classique")
+        plot(x1,x2,xlab = variable1, ylab = variable2,col = color, pch = pch)
+      else if(type == "ggplot"){
+        ggplot(data, aes(x = x1, y = x2)) +
+        geom_bin2d() +
+        labs(
+          x = variable1,
+          y = variable2,
+        )
+      }
+      else if(type == "plotly"){
+        plot <- plot_ly(data, x = ~x1, y = ~x2, type = "histogram2d")
+        layout(plot,xaxis = list(title = variable1),yaxis = list(title = variable2))
+      }
+    }
+    else{#on discrimine par rapport a une modalite
+      y <- data[,modalite]
+      if(type == "classique"){
+        moda <- levels(as.factor(y))
+        pchs <-  ifelse(y == moda[1],pch,pch+1)
+        couleurs <- ifelse(y == moda[1], "blue","deeppink")
+        plot(x1,x2, xlab = variable1, ylab = variable2,col = couleurs,pch = pchs)
+        legend("topright", legend = moda, pch = c(pch,pch+1), col = c("blue","deeppink"), cex = 0.8)
+      }
+      else if (type == "ggplot"){ ##ggplot version
+        p1 <- ggplot(data, aes(x = x1, y = x2)) +
+              geom_point(aes(color = y)) +
+              labs( #la legende
+                x = variable1,
+                y = variable2,
+                color = modalite,
+                title = paste(variable1," en fonction de ",variable2)
+              )
+        if(reg == TRUE){
+          p1 <- p1 + geom_smooth(se = FALSE)
+        }
+        p1
+      }
+      else if(type == "plotly"){
+        plot <- plot_ly(data, x = ~x1, y = ~x2, type = "scatter",color = ~y,mode="markers")
+        layout(plot,xaxis = list(title = variable1),yaxis = list(title = variable2))
+      }
+    }
+  }
+}
+
+```
+
+```{r examples-function_scatterplot}
+scatterplot(iris,variable1 = "Sepal.Length",variable2 = "Sepal.Width",type = "classique")
+```
+
+```{r tests-function_scatterplot}
+## a faire ## 
+```
+
+# plot_quanti
+
+```{r function-plot_quanti}
+#' permet de faire un plot quantitatif
+#'
+#' @param plot_type le type de plot ('Histogram','Density','boxplot','scatterplot')
+#' @param data un dataframe
+#' @param variable_quanti1 une variable quantitative.
+#' @param variable_quanti2 une variable quantitative.
+#' @param variable_binaire une variable indicatrice.
+#' @param modalites choix de la modalite a discriminer.
+#' @param breaksHist le nombre de tranches pour un histogramme
+#' @param breaksBox le nombre de tranches pour un boxplot
+#' @param ajust ajustement de la taille des box si 'oui'.
+#' @param discr discrimination par une modalite si 'oui'.
+#' @param type le type de graphe utilise ('classique','ggplot','plotly')
+#'
+#' @return un graphique quantitatif
+#' @export
+
+plot_quanti<-function(plot_type="Histogram",data,variable_quanti1,variable_quanti2,variable_binaire,modalites="Aucune",breaksHist=10,breaksBox=1,ajust='non',discr='non',type = "classique"){
+
+  if(plot_type == "Histogram"){
+    histogramme(data,variable_quanti1,breaksHist,"red",type)
+  }
+  #######Densite######
+  else if (plot_type == "Density"){
+    modalite <- NULL
+    if(modalites!="Aucune")
+      modalite <- modalites
+    densite(data = data,variable = variable_quanti1,modalite=modalite ,type = type)
+  }
+  ######boxplot######
+  else if (plot_type == "boxplot"){
+    width <- ifelse(ajust == 'oui',TRUE,FALSE)
+    boitemoustache(data = data,variable = variable_quanti1,nbClasses = breaksBox,varwidth = width,type = type)#palette_couleurs[1:breaksBox])#gestion des couleurs
+  }
+  ##scatterplot ##
+  else {
+    modalite <- NULL
+    if(discr == "oui")
+      modalite <- variable_binaire
+    scatterplot(data,variable_quanti1,variable_quanti2,type,modalite = modalite)
+  }
+}
+
+```
+
+```{r examples-function_plot_quanti}
+plot_quanti(plot_type = "Histogram",data=iris,variable_quanti1 = "Sepal.Length",breaksHist = 6)
+plot_quanti(plot_type = "Density",data=iris,variable_quanti1 = "Sepal.Length",type = "ggplot")
+```
+
+```{r tests-function_plot_quanti}
+## a faire ## 
+```
+
+# plot_quali
+
+```{r function-plot_quali}
+#' permet de faire un plot qualitatif
+#'
+#' @param plot_type le type de plot le type de plot ('barplot','mosaicplot').
+#' @param data un dataframe
+#' @param var1 une variable qualitative
+#' @param var2 une 2eme variable qualitative
+#' @param tri tri un barplot si "oui".
+#' @param color couleur du graphique.
+#' @param type le type de graphe utilise ('classique','ggplot','plotly')
+#'
+#' @return un graphique qualitatif
+#' @export
+
+plot_quali <- function(plot_type="barplot",data,var1,var2,tri="non",color="grey",type="classique"){
+  ##barplot##
+  if(plot_type == "barplot"){
+    diagbatons(data,var1,ifelse(tri=="non",FALSE,TRUE),color = color,type = type)
+  }
+  ##mosaicplot##
+  else if(plot_type == "mosaicplot"){
+    mosaique(data,var1,var2,col = color, type = type)
+  }
+}
+
+```
+
+
+```{r examples-function_plot_quali}
+plot_quali(plot_type = "barplot",data=iris,var1 = "Species",type = "classique",color = c("darkred","steelblue","darkorange"))
+plot_quali(plot_type = "mosaicplot",data=iris,var1 = "Species",var2 = "Species",type = "ggplot")
+```
+
+```{r tests-function_plot_quali}
+## a faire ## 
+```
+
+# plot_quanti_quali
+```{r function-plot_quanti_quali}
+#' Permet de faire des plots quanti vs quali
+#'
+#' @param plot_type le type de plot ('boxplot','barplot','scatterplot').
+#' @param data un dataframe.
+#' @param var_quanti1 une variable quantitative.
+#' @param var_quanti2 une variable quantitative (up: marche avec tout type de variable).
+#' @param var_quali une variable qualitative.
+#' @param modalites choix de la modalite a discriminer.
+#' @param color couleur du graphique.
+#' @param type le type de graphique ("classique','ggplot','plotly')
+#'
+#' @return un graphique d'une variable quantitative en fonction d'une qualitative
+#' @export
+
+plot_quanti_quali <- function(plot_type="boxplot",data,var_quanti1,var_quanti2,var_quali,modalites="toute la population",color="grey",type="classique"){
+
+  x <- data[,var_quanti1]
+  y <- data[,var_quali]
+
+  ##boxplot##
+  if(plot_type == "boxplot"){
+    boitemoustache(data,var_quanti1,type = type,color = color,modalite = var_quali)
+  }
+  ##barplot##
+  else if (plot_type == "barplot") {
+    diagbatons(data,var_quali,color = color,type = type,variable = var_quanti1)
+  }
+  ##scatterplot##
+  else{
+    if(type=="classique"){
+      if(modalites == "toute la population"){
+        mod <- levels(as.factor(y))
+        taille_grille <- floor(sqrt(length(mod)))+1
+        par(mfrow = c(taille_grille,taille_grille))
+        for(i in 1:length(mod)){
+          data_filtre <- data[y == mod[i],]
+          plot(data_filtre[,var_quanti1],data_filtre[,var_quanti2],xlab = var_quanti1, ylab = var_quanti2,pch=20,main=mod[i])
+        }
+      }
+      else{#on regarde un sous ensemble
+        data_filtre <- data[y == modalites,]
+        plot(data_filtre[,var_quanti1],data_filtre[,var_quanti2],xlab = var_quanti1, ylab = var_quanti2,pch=20,main=modalites)
+      }
+    }
+    else{##cas ggplot
+      if(modalites == "toute la population"){
+        ggplot(data, aes(x = x, y = data[,var_quanti2])) +
+          geom_point() +
+          facet_wrap(~data[,var_quali]) +
+          labs(
+            x = var_quanti1,
+            y = var_quanti2
+          )
+      }
+      else {#on regarde un sous ensemble
+        data_filtre <- data[y == modalites,]
+        ggplot(data_filtre,aes(x = data_filtre[,var_quanti1], y = data_filtre[,var_quanti2])) +
+          geom_point() +
+          labs(
+            x = var_quanti1,
+            y = var_quanti2,
+            title = var_quali,
+            caption = "Data from Himalayan Expeditions"
+          )
+      }
+    }
+  }
+}
+
+```
+
+```{r examples-function_plot_quanti_quali}
+plot_quanti_quali(plot_type = "boxplot",data = iris,var_quanti1 = "Sepal.Length",var_quali = "Species",type = "classique",color = 1:6)
+```
+
+```{r tests-function_plot_quanti_quali}
+## a faire ## 
+```
+
+
+
+
+
+```{r development-inflate, eval=FALSE}
+# Run but keep eval=FALSE to avoid infinite loop
+# Execute in the console directly
+fusen::inflate(flat_file = "dev/flat_fonction_metiers.Rmd", vignette_name = "Go further")
+```
+

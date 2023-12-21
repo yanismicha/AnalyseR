@@ -1,0 +1,35 @@
+flat_fonction_metiers.Rmd:
+  path: dev/flat_fonction_metiers.Rmd
+  state: active
+  R:
+  - R/barstriees.R
+  - R/boitemoustache.R
+  - R/densite.R
+  - R/diagbatons.R
+  - R/histogramme.R
+  - R/mosaique.R
+  - R/plot_quali.R
+  - R/plot_quanti.R
+  - R/plot_quanti_quali.R
+  - R/scatterplot.R
+  - R/scinde.R
+  tests:
+  - tests/testthat/test-scinde.R
+  - tests/testthat/test-barstriees.R
+  - tests/testthat/test-diagbatons.R
+  - tests/testthat/test-boitemoustache.R
+  - tests/testthat/test-densite.R
+  - tests/testthat/test-histogramme.R
+  - tests/testthat/test-mosaique.R
+  - tests/testthat/test-scatterplot.R
+  - tests/testthat/test-plot_quanti.R
+  - tests/testthat/test-plot_quali.R
+  - tests/testthat/test-plot_quanti_quali.R
+  vignettes: vignettes/go-further.Rmd
+  inflate:
+    flat_file: dev/flat_fonction_metiers.Rmd
+    vignette_name: Go further
+    open_vignette: true
+    check: true
+    document: true
+    overwrite: ask

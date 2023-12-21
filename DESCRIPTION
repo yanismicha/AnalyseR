@@ -1,0 +1,38 @@
+Package: AnalyseR
+Title: Application d'analyse et de machine learning
+Version: 0.0.0.9000
+Authors@R: 
+    person("Micha", "Yanis", , "yanismicha02@gmail.com", role = c("cre", "aut"))
+Description: Ce package comprend une application shiny permettant la
+    visualisation et la comparaison de graphiques, mais également de la
+    prédiction sur un jeu de donnée.
+License: MIT + file LICENSE
+Depends: 
+    R (>= 2.10)
+Imports: 
+    config (>= 0.3.2),
+    dplyr,
+    forcats,
+    ggmosaic,
+    ggplot2,
+    ggridges,
+    golem (>= 0.4.1),
+    magrittr,
+    plotly,
+    RColorBrewer,
+    reactable,
+    rlang,
+    shiny (>= 1.7.5),
+    shinydashboard,
+    shinyjs,
+    shinyWidgets
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: 
+    knitr
+Config/fusen/version: 0.5.2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
