@@ -30,21 +30,42 @@ devtools::install_github("yanismicha/AnalyseR")
 ```
 
 ## Example
+Pour charger le package il suffit  d'écrire la commande suivante:
 
-
-```{r example,message=FALSE}
+```{r example,eval=FALSE}
 library(AnalyseR)
-library(compar)
+```
 
+
+## Lancement de l'application
+Pour lancer l'application, lancer ensuite la commande suivante:
+```{r,eval=FALSE}
+AnalyseR::run_app()
+```
+
+Vous avez également accès à toute les fonctions utilisés à l'intérieur de l'application.  
+**Exemple**:
+```{r,message=FALSE,warning=FALSE}
+AnalyseR::histogramme(data=iris,variable = "Sepal.Length",nbClasses = 10,color = "darkred",type="ggplot")
+```
+
+```{r}
+AnalyseR::scinde(iris)
 ```
 
 
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+
+
+
+
+
+
+
+
 
 
 ```{r pressure, echo = FALSE}
 
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
