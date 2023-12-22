@@ -29,11 +29,13 @@ mod_tabPredict_ui <- function(id){
             column(width = 6,
                    h1("Prédictions Python:"),
                    verbatimTextOutput("predknnP"),
+                   textOutput("textPython"),
                    progressBar(id = "pb1", value = 0, total = 100, status = "info", display_pct = TRUE, striped = FALSE, title = "Pourcentage de succès:")
             ),
             column(width = 6,
                    h1("Prédictions Julia:"),
                    verbatimTextOutput("predknnJ"),
+                   textOutput("textJulia"),
                    progressBar(id = "pb2", value = 0, total = 100, status = "info", display_pct = TRUE, striped = FALSE, title = "Pourcentage de succès:")
 
             )

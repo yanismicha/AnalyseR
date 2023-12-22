@@ -2,6 +2,7 @@
 #'
 #' @param request Internal parameter for `{shiny}`.
 #'     DO NOT REMOVE.
+#' @import cicerone
 #' @import plotly
 #' @import reactable
 #' @import shiny
@@ -9,8 +10,8 @@
 #' @import shinyjs
 #' @import shinyWidgets
 #' @noRd
-
 source("R/scinde.R")
+source("R/guide.r")
 data("data",package = "AnalyseR")
 names_data<- scinde(data)
 names_data_quanti <- names_data$quanti
@@ -24,7 +25,8 @@ app_ui <- function(request) {
     dashboardPage(
       dashboardHeader(title = "M&N"),
       mod_dbSidebar_ui("dbSidebar_1"),
-      mod_dbBody_ui("dbBody_1")
+      mod_dbBody_ui("dbBody_1"),
+      use_cicerone()
     )
   )
 }

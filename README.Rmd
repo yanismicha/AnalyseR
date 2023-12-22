@@ -52,6 +52,10 @@ AnalyseR::histogramme(data=iris,variable = "Sepal.Length",nbClasses = 10,color =
 ```{r}
 AnalyseR::scinde(iris)
 ```
+# Machine Learning
+La partie de Machine Learning n'est pas encore opérationnelle au sein de l'interface.
+L'onglet correspondant ne produit donc pas de réel prédiction mais une génération aléatoire en attendant de fixer les quelques problèmes de portabilité.
+
 
 
 

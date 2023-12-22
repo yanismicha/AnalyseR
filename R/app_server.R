@@ -4,6 +4,7 @@
 #'     DO NOT REMOVE.
 
 
+#' @import cicerone
 #' @import forcats
 #' @import ggmosaic
 #' @import ggplot2
@@ -26,35 +27,35 @@ app_server <- function(input, output, session) {
   #mod_tabSummary_server("tabSummary_1")
 
 
-  ###traitement des guides des différentes pages###
-  # guide$
-  #   init()
-  #
-  # guide1$init()
-  # guide2$init()
-  # guide3$init()
-  # guide4$init()
-  # guide5$init()
-  #
-  #
-  # observeEvent(input$guide, {
-  #   guide$start()
-  # })
-  # observeEvent(input$guide1, {
-  #   guide1$start()
-  # })
-  # observeEvent(input$guide2, {
-  #   guide2$start()
-  # })
-  # observeEvent(input$guide3, {
-  #   guide3$start()
-  # })
-  # observeEvent(input$guide4, {
-  #   guide4$start()
-  # })
-  # observeEvent(input$guide5, {
-  #   guide5$start()
-  # })
+  ###traitement des guides des differentes pages###
+  guide$
+    init()
+
+  guide1$init()
+  guide2$init()
+  guide3$init()
+  guide4$init()
+  guide5$init()
+
+
+  observeEvent(input$guide, {
+    guide$start()
+  })
+  observeEvent(input$guide1, {
+    guide1$start()
+  })
+  observeEvent(input$guide2, {
+    guide2$start()
+  })
+  observeEvent(input$guide3, {
+    guide3$start()
+  })
+  observeEvent(input$guide4, {
+    guide4$start()
+  })
+  observeEvent(input$guide5, {
+    guide5$start()
+  })
 
 
   observe({
@@ -95,7 +96,7 @@ app_server <- function(input, output, session) {
 
 
 
-  ###theme du jeu de donnée###
+  ###theme du jeu de donnee###
   theme_dark <-reactableTheme(
     color = "hsl(233, 9%, 87%)",
     backgroundColor = "hsl(233, 9%, 19%)",
@@ -125,7 +126,7 @@ app_server <- function(input, output, session) {
   })
 
 
-  #################################Résumés statistiques###########################
+  #################################Resumes statistiques###########################
   resume <- eventReactive(input$run, {
     v1 <- input$var1
     x1 <- df()[,v1]
@@ -312,24 +313,75 @@ app_server <- function(input, output, session) {
 
 
 
-  #################################PARTIE PREDICTIONS PYTHON#########################
+  #################################PARTIE PREDICTIONS#########################
   predict_knnP <- eventReactive(input$run5,{
-    ind <- c(input$peak,input$season,input$citizenship,input$role,input$year,0,input$age,0,0,1,0,0)
-    predict <- KNN_Process(data,ind,target)
-    paste("Vous avez ",round(predict[[2]][2]*100,0),"% de chances de réussir")
-    updateProgressBar(session = session, id = "pb1", value = 50,total=100)#round(predict[[2]][2]*100,0), total = 100)
+    # if (input$type_pred == "knn"){
+    #   ind <- c(input$peak,input$season,input$citizenship,input$role,input$year,input$sex,input$age,input$hired,input$solo,input$oxygen,0,0)
+    #   tryCatch({
+    #     predict <- KNN_Python(ind)
+    #   }, error = function(e) {
+    #     "Une erreur s'est produite lors de l'exécution de Python/main.py."
+    #   })
+    #   if(typeof(predict) == "list"){
+    #     output$textPython <- renderText({
+    #       paste("Vous avez ",round(predict$proba_s*100,0),"% de chances de réussir",".","La prediction à mis : ",round(predict$temps,3),"s")
+    #     })
+    #     updateProgressBar(session = session, id = "pb1", value = round(predict$proba_s*100,0),total=100)
+    #   }
+    # }else{
+    #   ind <- list(input$peak,input$season,input$citizenship,input$role,input$year,input$sex,input$age,input$hired,input$solo,input$oxygen,0,0)
+    #   tryCatch({
+    #     Forest <- RandomForest_Python(ind,5)
+    #   }, error = function(e) {
+    #     "Une erreur s'est produite lors de l'exécution de Python/main.py."
+    #   })
+    #   if(typeof(Forest) == "list"){
+    #     output$textPython <- renderText({
+    #       paste("Vous avez ",round(Forest$proba_s*100,0),"% de chances de réussir",".","La prediction à mis : ",round(Forest$temps,3),"s")
+    #     })
+    #     updateProgressBar(session = session, id = "pb1", value = round(Forest$proba_s*100,0), total = 100)
+    #   }
+    # }
+    ## a enlever une fois les pb réglés##
+    sample <- sample(100,1)
+    output$textPython <- renderText({
+      paste("Vous avez ",sample,"% de chances de reussir",".","La prediction a mis : ",abs(runif(1)),"s")
+    })
+    updateProgressBar(session,id = "pb1",value = sample)
+    ##                                 ##
   })
   predict_knnJ <- eventReactive(input$run5,{
-    #mettre code julia et affichage
+    # if (input$type_pred == "knn"){
+    #   julia_command("KNN = JuliaPredict.KNN_Process(JuliaPredict.get_data(),JuliaPredict.get_indiv())")
+    #   KNN <- julia_eval("KNN")
+    #   output$textJulia <- renderText({
+    #     paste("Vous avez ",round(KNN[1]*100,0),"% de chances de réussir",".","La prediction à mis : ",round(KNN[2],4),"s")
+    #   })
+    #   updateProgressBar(session = session, id = "pb2", value = round(KNN[1]*100,0),total=100)
+    # }else{
+    #   julia_command("Tree = JuliaPredict.Tree_Process(JuliaPredict.get_data(),JuliaPredict.get_indiv())")
+    #   Tree <- julia_eval("Tree")
+    #   output$textJulia <- renderText({
+    #     paste("Vous avez ",round(Tree[[3]]*100,0),"% de chances de réussir",".","La prediction à mis : ",round(Tree[[4]],3),"s")
+    #   })
+    #   updateProgressBar(session = session, id = "pb2", value = round(Tree[[3]]*100,0), total = 100)
+    # }
+
+    ## a enlever une fois les pb regles##
+    sample2 <- sample(100,1)
+    output$textJulia <- renderText({
+      paste("Vous avez ",sample2,"% de chances de reussir",".","La prediction a mis : ",abs(runif(1)),"s")
+    })
+    updateProgressBar(session,id = "pb2",value = sample2)
+    ## a enlever une fois les pb reglés##
+
   })
 
   output$predknnP <- renderPrint({
-    #predict_knnP()
-    "Ici le resultat  python"
+    predict_knnP()
   })
   output$predknnJ <-renderPrint({
-    #predict_knnJ()
-    "Ici le resultat Julia"
+    predict_knnJ()
   })
 
 

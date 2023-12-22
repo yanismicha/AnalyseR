@@ -7,6 +7,7 @@ flat_fonction_metiers.Rmd:
   - R/densite.R
   - R/diagbatons.R
   - R/histogramme.R
+  - R/int.R
   - R/mosaique.R
   - R/plot_quali.R
   - R/plot_quanti.R
@@ -25,6 +26,7 @@ flat_fonction_metiers.Rmd:
   - tests/testthat/test-plot_quanti.R
   - tests/testthat/test-plot_quali.R
   - tests/testthat/test-plot_quanti_quali.R
+  - tests/testthat/test-int.R
   vignettes: vignettes/go-further.Rmd
   inflate:
     flat_file: dev/flat_fonction_metiers.Rmd

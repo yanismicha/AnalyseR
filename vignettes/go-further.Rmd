@@ -93,3 +93,90 @@ plot_quali(plot_type = "mosaicplot",data=iris,var1 = "Species",var2 = "Species",
 plot_quanti_quali(plot_type = "boxplot",data = iris,var_quanti1 = "Sepal.Length",var_quali = "Species",type = "classique",color = 1:6)
 ```
 
+# int
+
+```{r examples-function_int}
+Int(11)
+Int(3.2)
+```
+
+<!-- # KNN_python -->
+<!-- ```{r function-KNN_python,eval=FALSE} -->
+<!-- #' prediction KNN depuis python -->
+<!-- #' -->
+<!-- #' @param indiv_prediction Vecteur comprennant l’individu à predire -->
+<!-- #' @param n Permet de selectionner le nombre de voisin -->
+<!-- #' @param p Defini le p dans la norme pour la p-norme -->
+<!-- #' -->
+<!-- #' @return La fonction renvoie un vecteur contenant : -->
+<!-- #' $prediction : Renvoie une valeur boolean sur la succes de l’expedition -->
+<!-- #' $proba : Renvoie le vecteur contenant la probabilite d’appartenir a chaque classe -->
+<!-- #' $temps : Renvoie le temps mis pour l'encodage et la prediction -->
+<!-- #' -->
+<!-- #' @importFrom reticulate use_virtualenv -->
+<!-- #' @importFrom reticulate source_python -->
+<!-- #' -->
+<!-- #' @export -->
+<!-- #' -->
+
+<!-- KNN_Python <- function(indiv_prediction,n = Int(11), p = Int(3)){ -->
+<!--   use_virtualenv("Python/venv") -->
+<!--   source_python("Python/main.py") -->
+<!--   KNN_result = KNN_Process(data,indiv_prediction,target ,Int(n), Int(p)) -->
+<!--   return(list(prediction = KNN_result[[1]], proba_f = KNN_result[[2]],proba_s = KNN_result[[3]],temps = KNN_result[[4]] )) -->
+<!-- } -->
+
+<!-- ``` -->
+
+<!-- ```{r examples-function_KNN_python,eval=FALSE} -->
+<!-- KNN_Python(c("Ama Dablam","Autumn","France","Climber",2025,1,1,1,1,1,1,1), n = 11 , p = 3) -->
+<!-- ``` -->
+
+<!-- ```{r tests-function_KNN_python} -->
+<!-- ## a faire ## -->
+<!-- ``` -->
+
+<!-- # RandomForest_Python -->
+<!-- ```{r function-RandomForest_Python,eval=FALSE} -->
+<!-- #' Prediction RandomForest depuis python -->
+<!-- #' -->
+<!-- #' @param indiv_prediction Vecteur comprennant l’individu à predire -->
+<!-- #' @param n Nombre d'estimateur dans l’algorithme de la Random Forest -->
+<!-- #' -->
+<!-- #' @importFrom reticulate use_virtualenv -->
+<!-- #' @importFrom reticulate source_python -->
+<!-- #' -->
+<!-- #' @return La fonction renvoie un vecteur contenant : -->
+<!-- #' $prediction : Renvoie une valeur boolean sur la succes de l’expedition -->
+<!-- #' $proba : Renvoie le vecteur contenant la probabilite d’appartenir a chaque classe -->
+<!-- #' $temps : Renvoie le temps mis pour l'encodage et la prediction -->
+<!-- #' @export -->
+<!-- #' -->
+
+<!-- RandomForest_Python <- function(indiv_prediction,n = Int(2)){ -->
+<!--   use_virtualenv("Python/venv") -->
+<!--   source_python("Python/main.py") -->
+<!--   RandomForest_result = Tree_Process(data,indiv_prediction,Int(n)) -->
+<!--   return(list(prediction = RandomForest_result[[1]], proba_f = RandomForest_result[[2]],proba_s = RandomForest_result[[3]],temps = RandomForest_result[[4]])) -->
+<!-- } -->
+
+<!-- ``` -->
+
+<!-- ```{r examples-function_RandomForest_Python,eval=FALSE} -->
+<!-- RandomForest_Python(c("Ama Dablam","Autumn","France","Climber",2025,1,1,1,1,1,1,1), n = 11) -->
+<!-- ``` -->
+
+<!-- ```{r tests-function_RandomForest_Python} -->
+<!-- ## a faire ## -->
+<!-- ``` -->
+
+
+
+
+
+
+
+
+
+
+
