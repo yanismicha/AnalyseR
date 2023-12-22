@@ -52,6 +52,12 @@ AnalyseR::histogramme(data=iris,variable = "Sepal.Length",nbClasses = 10,color =
 ```{r}
 AnalyseR::scinde(iris)
 ```
+
+## Note
+Il est possible que certains graphiques `ggplotly` mette du temps pour se lancer, voir ne se lance pas. Il ne s'agit pas d'un bug de l'interface mais de la difficulté de cette fonction de wrap un ggplot en un graphique plotly et cette mise en place permet justement de se rendre compte des grandes limites qu'offre ggplotly. Dans l'avenir, cette option est voué à être omise au sein de l'interface et de juste laisser à l'utilisateur le choix entre les ggplot et plotly.   
+
+
+
 # Machine Learning
 La partie de Machine Learning n'est pas encore opérationnelle au sein de l'interface.
 L'onglet correspondant ne produit donc pas de réel prédiction mais une génération aléatoire en attendant de fixer les quelques problèmes de portabilité.
