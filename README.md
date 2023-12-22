@@ -82,13 +82,6 @@ un code permettant d’installer toute les dépendances nécessaires (en
 commentaire les packages du machine learning):
 
 ``` r
-if(!require(here)){
-  install.packages("here")
-}
-require(here)
-if(!require(JuliaCall)){
-  install.packages("JuliaCall")
-}
 if(!require(shiny)){
   install.packages("shiny")
 }
@@ -117,13 +110,6 @@ if(!require(ggmosaic)){
 if(!require(patchwork)){
   install.packages("patchwork")
 }
-path=here()
-if(!require(scindeR)){
-  install.packages(paste0(path,"R/packagesR/scindeR_0.0.0.9000.tar.gz"), repos = NULL, type = "source")
-}
-if(!require(compar)){
-  install.packages(paste0(path,"R/packagesR/compar_0.0.0.9000.tar.gz"), repos = NULL, type = "source")
-}
 
 if(!require(plotly)){
   install.packages("plotly")
@@ -134,6 +120,7 @@ if(!require(shinyWidgets)){
 if(!require(cicerone)){
   install.packages("cicerone")
 }
+require(cicerone)
 require(shinyWidgets)
 require(shinydashboard)
 require(shinythemes)
@@ -145,6 +132,9 @@ require(ggmosaic)
 require(patchwork)
 require(plotly)
 require(JuliaCall)
+# if(!require(JuliaCall)){
+#   install.packages("JuliaCall")
+# }
 # if(!require(PredictionPython)){
 #   install.packages(paste0(path,"/packagesR/PredictionPython_1.0.tar.gz"), repos = NULL, type = "source")
 # }

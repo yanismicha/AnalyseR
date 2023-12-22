@@ -16,6 +16,9 @@
 #' @import magrittr
 #' @import plotly
 #' @noRd
+
+data("data",package = "AnalyseR")
+
 app_server <- function(input, output, session) {
   palette_couleurs <- brewer.pal(12, "Set3")
   names_data<- scinde(data)
